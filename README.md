@@ -46,18 +46,26 @@ This repo now includes an API endpoint that sends appointment requests to your i
 Environment variables (Vercel → Project → Settings → Environment Variables):
 
 - `RESEND_API_KEY` — Your Resend API key
-- `APPOINTMENTS_TO_EMAIL` — Where you want to receive requests (e.g. `quang.nguyen@dqautomotivellc.com`)
-- `APPOINTMENTS_FROM_EMAIL` — The sender identity for outgoing emails, e.g. `appointments@dqautomotivellc.com`
+- `APPOINTMENTS_TO_EMAIL` — Where you want to receive requests (e.g. `service@dqautomotive.net`)
+- `APPOINTMENTS_FROM_EMAIL` — The sender identity for outgoing emails, e.g. `appointments@dqautomotive.net`
+- `APPOINTMENTS_BCC_EMAIL` — Optional. A second inbox to receive a blind copy of every request.
+- `APPOINTMENTS_BUSINESS_NAME` — Optional. Overrides the business name used in the customer auto‑reply (defaults to `DQ Automotive`).
 
 About `APPOINTMENTS_FROM_EMAIL`:
 
-- Use an address at your domain for best deliverability (e.g. `appointments@dqautomotivellc.com`).
+- Use an address at your domain for best deliverability (e.g. `appointments@dqautomotive.net`).
 - In Resend, add and verify your domain. Resend will show 3–4 DNS records (DKIM, Return‑Path, etc.) to add in GoDaddy → DNS. Once verified, Resend can send as your domain.
 - You do not need a mailbox for this address to send; the API can still send “From” this address. For replies, the API sets `Reply-To` to the customer’s email so you can reply directly. Optionally, create an alias/forwarder for `appointments@` if you want that address to receive mail too.
 
 Deploy notes:
 
 - Add the env vars above, redeploy. No further configuration is required beyond domain verification in Resend for the From address.
+
+Behavior:
+
+- The API sends two emails:
+  - To you (`APPOINTMENTS_TO_EMAIL`) with full request details. If `APPOINTMENTS_BCC_EMAIL` is set, it gets a blind copy.
+  - Auto‑reply to the customer confirming receipt and sharing your phone number for urgent issues.
 
 ## Connect Your GoDaddy Domain on Vercel
 

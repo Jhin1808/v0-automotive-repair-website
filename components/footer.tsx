@@ -43,7 +43,9 @@ export function Footer() {
             <h4 className="font-bold mb-4">{t("footer.contactInfo")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>(206) 922-9753</li>
-              <li>quang.nguyen@dqautomotivellc.com</li>
+              <li>
+                <a href="mailto:service@dqautomotive.net" className="hover:underline">service@dqautomotive.net</a>
+              </li>
               <li>10525 16th Ave S</li>
               <li>Seattle, WA 98168</li>
             </ul>

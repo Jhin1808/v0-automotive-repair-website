@@ -316,7 +316,9 @@ export function Contact() {
               </div>
               <div>
                 <h3 className="font-bold mb-1">{t("contact.info.email")}</h3>
-                <p className="text-muted-foreground">quang.nguyen@dqautomotivellc.com</p>
+                <p className="text-muted-foreground">
+                  <a href="mailto:service@dqautomotive.net" className="hover:underline">service@dqautomotive.net</a>
+                </p>
               </div>
             </div>
 
