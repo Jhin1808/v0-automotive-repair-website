@@ -33,7 +33,11 @@ export function Header() {
             <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {t("nav.about")}
             </a>
-            <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a
+              href="#contact"
+              onClick={scrollToContact}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               {t("nav.contact")}
             </a>
           </nav>
@@ -50,7 +54,7 @@ export function Header() {
             </Button>
 
             <Button size="sm" className="font-semibold" asChild>
-              <a href="#contact" onClick={scrollToContact}>
+              <a href="/booking">
                 {t("nav.bookAppointment")}
               </a>
             </Button>
