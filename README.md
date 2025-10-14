@@ -36,6 +36,29 @@ NEXT_PUBLIC_BOOKING_URL=https://calendly.com/your-account/auto-service
 
 Optional: If you prefer a custom form + email workflow instead of a scheduling provider, create an API route under `app/api/` (e.g. `app/api/appointments/route.ts`) to send confirmation emails via a provider like Resend or SendGrid, and process availability server‑side.
 
+## Appointment Requests via Resend (Email)
+
+This repo now includes an API endpoint that sends appointment requests to your inbox using Resend.
+
+- Endpoint: `POST /api/appointments`
+- Frontend: the Contact form posts to this endpoint and shows success/error states.
+
+Environment variables (Vercel → Project → Settings → Environment Variables):
+
+- `RESEND_API_KEY` — Your Resend API key
+- `APPOINTMENTS_TO_EMAIL` — Where you want to receive requests (e.g. `quang.nguyen@dqautomotivellc.com`)
+- `APPOINTMENTS_FROM_EMAIL` — The sender identity for outgoing emails, e.g. `appointments@dqautomotivellc.com`
+
+About `APPOINTMENTS_FROM_EMAIL`:
+
+- Use an address at your domain for best deliverability (e.g. `appointments@dqautomotivellc.com`).
+- In Resend, add and verify your domain. Resend will show 3–4 DNS records (DKIM, Return‑Path, etc.) to add in GoDaddy → DNS. Once verified, Resend can send as your domain.
+- You do not need a mailbox for this address to send; the API can still send “From” this address. For replies, the API sets `Reply-To` to the customer’s email so you can reply directly. Optionally, create an alias/forwarder for `appointments@` if you want that address to receive mail too.
+
+Deploy notes:
+
+- Add the env vars above, redeploy. No further configuration is required beyond domain verification in Resend for the From address.
+
 ## Connect Your GoDaddy Domain on Vercel
 
 If you purchased your domain on GoDaddy, you can point it to your Vercel deployment:

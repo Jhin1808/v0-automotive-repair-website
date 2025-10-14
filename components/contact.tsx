@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,6 +30,10 @@ export function Contact() {
   const { t, language } = useLanguage()
   const [selectedService, setSelectedService] = useState<string>("")
   const [wantsMobileService, setWantsMobileService] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
   const selectedServiceData = services.find((s) => s.value === selectedService)
   const totalEstimate = selectedServiceData
     ? selectedServiceData.price + (wantsMobileService ? BASE_MOBILE_FEE : 0)
@@ -49,20 +53,64 @@ export function Contact() {
           <div>
             <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
               <CardContent className="p-8">
-                <form className="space-y-6">
+                <form
+                  className="space-y-6"
+                  ref={formRef}
+                  onSubmit={async (e) => {
+                    e.preventDefault()
+                    if (submitting) return
+                    setSubmitting(true)
+                    setError(null)
+                    try {
+                      const form = e.currentTarget
+                      const fd = new FormData(form)
+                      const payload = {
+                        name: String(fd.get("name") || "").trim(),
+                        email: String(fd.get("email") || "").trim(),
+                        phone: String(fd.get("phone") || "").trim(),
+                        message: String(fd.get("message") || "").trim(),
+                        service: selectedService,
+                        wantsMobileService,
+                        estimate: totalEstimate,
+                        language,
+                        website: String(fd.get("website") || ""), // honeypot
+                      }
+
+                      const res = await fetch("/api/appointments", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      })
+
+                      if (!res.ok) {
+                        const data = await res.json().catch(() => ({}))
+                        throw new Error(data?.message || "Request failed")
+                      }
+
+                      setSubmitted(true)
+                      form.reset()
+                      setSelectedService("")
+                      setWantsMobileService(false)
+                    } catch (err: any) {
+                      setError(err?.message || "Something went wrong")
+                    } finally {
+                      setSubmitting(false)
+                    }
+                  }}
+                >
                   <div className="space-y-2">
                     <Label htmlFor="name">{t("contact.form.name")}</Label>
-                    <Input id="name" placeholder="John Doe" />
+                    <Input id="name" name="name" placeholder="John Doe" required />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">{t("contact.form.email")}</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Input id="email" name="email" type="email" placeholder="john@example.com" required />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">{t("contact.form.phone")}</Label>
-                    <Input id="phone" type="tel" placeholder="(206) 555-1234" />
+                    <Input id="phone" name="phone" type="tel" placeholder="(206) 555-1234" required />
                   </div>
 
                   <div className="space-y-2">
@@ -79,6 +127,11 @@ export function Contact() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  {/* honeypot */}
+                  <div className="hidden" aria-hidden>
+                    <Label htmlFor="website">Website</Label>
+                    <Input id="website" name="website" autoComplete="off" tabIndex={-1} />
                   </div>
 
                   <div className="flex items-center space-x-2 p-4 border border-primary/20 rounded-lg bg-primary/5">
@@ -131,12 +184,24 @@ export function Contact() {
 
                   <div className="space-y-2">
                     <Label htmlFor="message">{t("contact.form.message")}</Label>
-                    <Textarea id="message" placeholder={t("contact.form.messagePlaceholder")} rows={4} />
+                    <Textarea id="message" name="message" placeholder={t("contact.form.messagePlaceholder")} rows={4} />
                   </div>
-
-                  <Button type="submit" size="lg" className="w-full font-semibold">
-                    {t("contact.form.submit")}
-                  </Button>
+                  {submitted ? (
+                    <div className="rounded-md border border-green-500/30 bg-green-500/10 p-4 text-sm">
+                      <p className="font-semibold">{t("contact.form.successTitle")}</p>
+                      <p className="text-muted-foreground">{t("contact.form.successBody")}</p>
+                    </div>
+                  ) : (
+                    <Button type="submit" size="lg" className="w-full font-semibold" disabled={submitting}>
+                      {submitting ? t("contact.form.submitting") : t("contact.form.submit")}
+                    </Button>
+                  )}
+                  {error && (
+                    <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm">
+                      <p className="font-semibold">{t("contact.form.errorTitle")}</p>
+                      <p className="text-muted-foreground">{t("contact.form.errorBody")}</p>
+                    </div>
+                  )}
                 </form>
               </CardContent>
             </Card>

@@ -145,6 +145,11 @@ const translations = {
         message: "Message",
         messagePlaceholder: "Tell me about your vehicle and the issue...",
         submit: "Send Message",
+        submitting: "Sending...",
+        successTitle: "Request sent",
+        successBody: "Thanks! We'll contact you shortly to confirm your appointment.",
+        errorTitle: "Something went wrong",
+        errorBody: "Please try again or call us at (206) 922-9753.",
       },
       info: {
         phone: "Phone",
@@ -282,6 +287,11 @@ const translations = {
         message: "Tin Nhắn",
         messagePlaceholder: "Cho tôi biết về xe của bạn và vấn đề...",
         submit: "Gửi Tin Nhắn",
+        submitting: "Đang gửi...",
+        successTitle: "Đã gửi yêu cầu",
+        successBody: "Cảm ơn! Chúng tôi sẽ liên hệ sớm để xác nhận lịch hẹn.",
+        errorTitle: "Có lỗi xảy ra",
+        errorBody: "Vui lòng thử lại hoặc gọi (206) 922-9753.",
       },
       info: {
         phone: "Điện Thoại",
