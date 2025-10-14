@@ -34,6 +34,7 @@ export function Contact() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const selectedServiceData = services.find((s) => s.value === selectedService)
   const totalEstimate = selectedServiceData
     ? selectedServiceData.price + (wantsMobileService ? BASE_MOBILE_FEE : 0)
@@ -61,19 +62,43 @@ export function Contact() {
                     if (submitting) return
                     setSubmitting(true)
                     setError(null)
+                    setFieldErrors({})
                     try {
-                      const form = e.currentTarget
+                      const form = e.currentTarget as HTMLFormElement
+                      if (!form.checkValidity()) {
+                        form.reportValidity()
+                        throw new Error("invalid")
+                      }
+
                       const fd = new FormData(form)
+                      const name = String(fd.get("name") || "").trim()
+                      const email = String(fd.get("email") || "").trim()
+                      const phone = String(fd.get("phone") || "").trim()
+                      const message = String(fd.get("message") || "").trim()
+                      const website = String(fd.get("website") || "")
+
+                      const errs: Record<string, string> = {}
+                      if (!name) errs.name = t("contact.form.errors.nameRequired")
+                      if (!email) errs.email = t("contact.form.errors.emailRequired")
+                      if (!phone) errs.phone = t("contact.form.errors.phoneRequired")
+                      if (!selectedService) errs.service = t("contact.form.errors.serviceRequired")
+                      if (!message || message.length < 5) errs.message = t("contact.form.errors.messageRequired")
+
+                      if (Object.keys(errs).length) {
+                        setFieldErrors(errs)
+                        throw new Error("invalid")
+                      }
+
                       const payload = {
-                        name: String(fd.get("name") || "").trim(),
-                        email: String(fd.get("email") || "").trim(),
-                        phone: String(fd.get("phone") || "").trim(),
-                        message: String(fd.get("message") || "").trim(),
+                        name,
+                        email,
+                        phone,
+                        message,
                         service: selectedService,
                         wantsMobileService,
                         estimate: totalEstimate,
                         language,
-                        website: String(fd.get("website") || ""), // honeypot
+                        website, // honeypot
                       }
 
                       const res = await fetch("/api/appointments", {
@@ -91,8 +116,11 @@ export function Contact() {
                       form.reset()
                       setSelectedService("")
                       setWantsMobileService(false)
+                      setFieldErrors({})
                     } catch (err: any) {
-                      setError(err?.message || "Something went wrong")
+                      if (err?.message !== "invalid") {
+                        setError(err?.message || "Something went wrong")
+                      }
                     } finally {
                       setSubmitting(false)
                     }
@@ -100,22 +128,58 @@ export function Contact() {
                 >
                   <div className="space-y-2">
                     <Label htmlFor="name">{t("contact.form.name")}</Label>
-                    <Input id="name" name="name" placeholder="John Doe" required />
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="John Doe"
+                      required
+                      aria-invalid={Boolean(fieldErrors.name) || undefined}
+                    />
+                    {fieldErrors.name && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">{t("contact.form.email")}</Label>
-                    <Input id="email" name="email" type="email" placeholder="john@example.com" required />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      required
+                      aria-invalid={Boolean(fieldErrors.email) || undefined}
+                    />
+                    {fieldErrors.email && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">{t("contact.form.phone")}</Label>
-                    <Input id="phone" name="phone" type="tel" placeholder="(206) 555-1234" required />
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="(206) 555-1234"
+                      pattern="^[0-9+()\\s-]{7,}$"
+                      required
+                      aria-invalid={Boolean(fieldErrors.phone) || undefined}
+                    />
+                    {fieldErrors.phone && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.phone}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="service">{t("contact.form.service")}</Label>
-                    <Select value={selectedService} onValueChange={setSelectedService}>
+                    <Select
+                      value={selectedService}
+                      onValueChange={(v) => {
+                        setSelectedService(v)
+                        setFieldErrors((e) => ({ ...e, service: "" }))
+                      }}
+                    >
                       <SelectTrigger id="service">
                         <SelectValue placeholder={t("contact.form.selectService")} />
                       </SelectTrigger>
@@ -127,6 +191,9 @@ export function Contact() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {fieldErrors.service && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{fieldErrors.service}</p>
+                    )}
                   </div>
                   {/* honeypot */}
                   <div className="hidden" aria-hidden>
@@ -184,7 +251,18 @@ export function Contact() {
 
                   <div className="space-y-2">
                     <Label htmlFor="message">{t("contact.form.message")}</Label>
-                    <Textarea id="message" name="message" placeholder={t("contact.form.messagePlaceholder")} rows={4} />
+                    <Textarea
+                      id="message"
+                      name="message"
+                      placeholder={t("contact.form.messagePlaceholder")}
+                      rows={4}
+                      required
+                      minLength={5}
+                      aria-invalid={Boolean(fieldErrors.message) || undefined}
+                    />
+                    {fieldErrors.message && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>
+                    )}
                   </div>
                   {submitted ? (
                     <div className="rounded-md border border-green-500/30 bg-green-500/10 p-4 text-sm">

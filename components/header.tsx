@@ -54,7 +54,7 @@ export function Header() {
             </Button>
 
             <Button size="sm" className="font-semibold" asChild>
-              <a href="/booking">
+              <a href="#contact" onClick={scrollToContact}>
                 {t("nav.bookAppointment")}
               </a>
             </Button>

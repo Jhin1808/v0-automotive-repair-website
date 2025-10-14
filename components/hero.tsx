@@ -9,7 +9,13 @@ import { useLanguage } from "@/lib/language-context"
 export function Hero() {
   const { t } = useLanguage()
 
-  // Navigation handled via standard links
+  const scrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const contactSection = document.getElementById("contact")
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }
 
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
@@ -40,7 +46,7 @@ export function Hero() {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="text-base font-semibold" asChild>
-              <a href="/booking">
+              <a href="#contact" onClick={scrollToContact}>
                 <Calendar className="mr-2 h-5 w-5" />
                 {t("hero.scheduleService")}
               </a>

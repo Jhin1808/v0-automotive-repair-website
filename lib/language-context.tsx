@@ -150,6 +150,13 @@ const translations = {
         successBody: "Thanks! We'll contact you shortly to confirm your appointment.",
         errorTitle: "Something went wrong",
         errorBody: "Please try again or call us at (206) 922-9753.",
+        errors: {
+          nameRequired: "Please enter your name",
+          emailRequired: "Please enter a valid email",
+          phoneRequired: "Please enter your phone number",
+          serviceRequired: "Please select a service",
+          messageRequired: "Please add a short message (min 5 characters)",
+        },
       },
       info: {
         phone: "Phone",
@@ -292,6 +299,13 @@ const translations = {
         successBody: "Cảm ơn! Chúng tôi sẽ liên hệ sớm để xác nhận lịch hẹn.",
         errorTitle: "Có lỗi xảy ra",
         errorBody: "Vui lòng thử lại hoặc gọi (206) 922-9753.",
+        errors: {
+          nameRequired: "Vui lòng nhập tên",
+          emailRequired: "Vui lòng nhập email hợp lệ",
+          phoneRequired: "Vui lòng nhập số điện thoại",
+          serviceRequired: "Vui lòng chọn dịch vụ",
+          messageRequired: "Vui lòng nhập tin nhắn (tối thiểu 5 ký tự)",
+        },
       },
       info: {
         phone: "Điện Thoại",

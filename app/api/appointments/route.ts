@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { Resend } from "resend"
 
 // Keep Node runtime (Resend SDK is not edge-compatible)
 export const dynamic = "force-dynamic"
@@ -9,9 +8,9 @@ const formSchema = z.object({
   name: z.string().min(2).max(120),
   email: z.string().email(),
   phone: z.string().min(7).max(40),
-  service: z.string().optional().default(""),
+  service: z.string().min(1, "service required"),
   wantsMobileService: z.boolean().optional().default(false),
-  message: z.string().max(4000).optional().default(""),
+  message: z.string().min(5).max(4000),
   estimate: z.number().optional().default(0),
   language: z.string().optional().default("en"),
   // Honeypot field — should be empty
@@ -65,8 +64,6 @@ export async function POST(req: Request) {
       )
     }
 
-    const resend = new Resend(RESEND_API_KEY)
-
     const subject = `New Appointment Request — ${data.service || "General"} — ${data.name}`
     const html = `
       <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#111">
@@ -106,21 +103,25 @@ export async function POST(req: Request) {
       data.estimate || 0,
     ).toFixed(2)}+\nLanguage: ${data.language}\n\nMessage:\n${data.message || "(none)"}\n\nIP: ${ip}`
 
-    const sendResult = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject,
-      html,
-      text,
-      reply_to: data.email,
+    const emailRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
       headers: {
-        "X-Appointment-IP": ip,
-        "X-Appointment-Service": data.service || "General",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        from: FROM,
+        to: [TO],
+        subject,
+        html,
+        text,
+        reply_to: data.email,
+      }),
     })
 
-    if ((sendResult as any)?.error) {
-      return NextResponse.json({ ok: false, message: "Email failed" }, { status: 502 })
+    if (!emailRes.ok) {
+      const errJson = await emailRes.json().catch(() => null)
+      return NextResponse.json({ ok: false, message: "Email failed", err: errJson }, { status: 502 })
     }
 
     return NextResponse.json({ ok: true })
@@ -137,4 +138,3 @@ function escapeHtml(input: string) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;")
 }
-
