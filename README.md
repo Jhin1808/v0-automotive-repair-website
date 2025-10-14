@@ -47,7 +47,10 @@ Environment variables (Vercel → Project → Settings → Environment Variables
 
 - `RESEND_API_KEY` — Your Resend API key
 - `APPOINTMENTS_TO_EMAIL` — Where you want to receive requests (e.g. `service@dqautomotive.net`)
-- `APPOINTMENTS_FROM_EMAIL` — The sender identity for outgoing emails, e.g. `appointments@dqautomotive.net`
+- `APPOINTMENTS_FROM_EMAIL` — The sender identity for outgoing emails. Use either:
+  - just the email: `appointments@dqautomotive.net`, or
+  - full format: `DQ Automotive <appointments@dqautomotive.net>`
+  The API auto-corrects common mistakes (missing angle brackets) but using one of the formats above is recommended.
 - `APPOINTMENTS_BCC_EMAIL` — Optional. A second inbox to receive a blind copy of every request.
 - `APPOINTMENTS_BUSINESS_NAME` — Optional. Overrides the business name used in the customer auto‑reply (defaults to `DQ Automotive`).
 

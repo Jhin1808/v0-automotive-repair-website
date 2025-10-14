@@ -55,17 +55,31 @@ export async function POST(req: Request) {
     }
 
     const RESEND_API_KEY = process.env.RESEND_API_KEY
-    const FROM = process.env.APPOINTMENTS_FROM_EMAIL // e.g. appointments@yourdomain.com (verified in Resend)
-    const TO = process.env.APPOINTMENTS_TO_EMAIL // e.g. your personal inbox
-    const BCC = process.env.APPOINTMENTS_BCC_EMAIL // optional archive copy
+    const FROM_RAW = process.env.APPOINTMENTS_FROM_EMAIL || "" // e.g. appointments@yourdomain.com or "Name <email@domain>"
+    const TO_RAW = process.env.APPOINTMENTS_TO_EMAIL || ""
+    const BCC_RAW = process.env.APPOINTMENTS_BCC_EMAIL || ""
     const BUSINESS = process.env.APPOINTMENTS_BUSINESS_NAME || "DQ Automotive"
 
-    if (!RESEND_API_KEY || !FROM || !TO) {
+    if (!RESEND_API_KEY || !FROM_RAW || !TO_RAW) {
       return NextResponse.json(
         { ok: false, message: "Server not configured. Missing env." },
         { status: 500 },
       )
     }
+
+    const FROM = formatFrom(FROM_RAW, BUSINESS)
+    if (!FROM) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "Invalid APPOINTMENTS_FROM_EMAIL. Use email@example.com or 'Name <email@example.com>'.",
+        },
+        { status: 400 },
+      )
+    }
+    const TO = normalizeEmail(TO_RAW)
+    const BCC = BCC_RAW ? normalizeEmail(BCC_RAW) : ""
 
     const subject = `New Appointment Request — ${data.service || "General"} — ${data.name}`
     const html = `
@@ -120,7 +134,7 @@ export async function POST(req: Request) {
         subject,
         html,
         text,
-        reply_to: data.email,
+        reply_to: (data.email || "").trim(),
       }),
     })
 
@@ -167,7 +181,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         from: FROM,
-        to: [data.email],
+        to: [(data.email || "").trim()],
         subject: arSubject,
         html: arHtml,
         text: arText,
@@ -187,4 +201,21 @@ function escapeHtml(input: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;")
+}
+
+function normalizeEmail(v: string) {
+  return v.trim()
+}
+
+function formatFrom(fromRaw: string, business: string) {
+  const raw = fromRaw.trim()
+  // Already in Name <email@domain> format
+  if (/<.*@.*>\s*$/.test(raw)) return raw
+  // Extract first email in string
+  const match = raw.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
+  if (match) {
+    const email = match[0]
+    return `${business} <${email}>`
+  }
+  return null
 }
