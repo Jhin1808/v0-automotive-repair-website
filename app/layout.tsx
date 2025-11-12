@@ -6,9 +6,9 @@ export const metadata: Metadata = {
   title: "DQ Automotive | Mobile Mechanic",
   description: "Mobile auto repair & diagnostics serving Seattle, Burien, and Kent.",
   icons: {
-    icon: "/favicon.icon",       // or "/dq-logo.png" if you used that name
-    shortcut: "/favicon.icon",
-    apple: "/favicon.icon",
+    icon: "/favicon.png",       // or "/dq-logo.png" if you used that name
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 }
 
