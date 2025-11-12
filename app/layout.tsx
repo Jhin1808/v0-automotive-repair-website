@@ -1,16 +1,15 @@
-import type React from "react"
+// app/layout.tsx
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { LanguageProvider } from "@/lib/language-context"
-import { Suspense } from "react"
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "DQ Automotive | Mobile Mechanic",
+  description: "Mobile auto repair & diagnostics serving Seattle, Burien, and Kent.",
+  icons: {
+    icon: "/favicon.ico",       // or "/dq-logo.png" if you used that name
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({
@@ -19,13 +18,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-      <body>
-        <Suspense fallback={<div>Loading...</div>}>
-          <LanguageProvider>{children}</LanguageProvider>
-        </Suspense>
-        <Analytics />
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   )
 }
+
