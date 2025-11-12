@@ -1,62 +1,93 @@
+// components/header.tsx
 "use client"
 
-import type React from "react"
-
-import { Button } from "@/components/ui/button"
-import { Wrench, Languages } from "lucide-react"
-import { useLanguage } from "@/lib/language-context"
+import Link from "next/link"
+import { useState } from "react"
 
 export function Header() {
-  const { language, setLanguage, t } = useLanguage()
+  const [open, setOpen] = useState(false)
 
-  const scrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    const contactSection = document.getElementById("contact")
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-  }
+  const navItems = [
+    { href: "#home", label: "Home" },
+    { href: "#services", label: "Services" },
+    { href: "#service-areas", label: "Service Areas" },
+    { href: "#contact", label: "Contact" },
+  ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Wrench className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">DQ Automotive</span>
-          </div>
+    <header className="fixed inset-x-0 top-0 z-50 bg-white/90 backdrop-blur shadow-sm">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link href="#home" className="flex items-center gap-1">
+          <span className="text-xl font-extrabold tracking-tight text-blue-900">
+            DQ
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-orange-500">
+            Automotive
+          </span>
+        </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t("nav.services")}
-            </a>
-            <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t("nav.about")}
-            </a>
-            <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t("nav.contact")}
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setLanguage(language === "en" ? "vi" : "en")}
-              className="gap-2"
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-8 md:flex">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-gray-700 transition hover:text-orange-500"
             >
-              <Languages className="h-4 w-4" />
-              <span className="hidden sm:inline">{language === "en" ? "VI" : "EN"}</span>
-            </Button>
+              {item.label}
+            </a>
+          ))}
 
-            <Button size="sm" className="font-semibold" asChild>
-              <a href="#contact" onClick={scrollToContact}>
-                {t("nav.bookAppointment")}
+          <a
+            href="#contact"
+            className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600 hover:shadow-lg"
+          >
+            Book Appointment
+          </a>
+        </div>
+
+        {/* Mobile button */}
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 md:hidden"
+          aria-label="Toggle navigation"
+        >
+          <span className="sr-only">Open main menu</span>
+          <div className="space-y-1.5">
+            <span className="block h-0.5 w-5 bg-current" />
+            <span className="block h-0.5 w-5 bg-current" />
+            <span className="block h-0.5 w-5 bg-current" />
+          </div>
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="border-t border-gray-100 bg-white md:hidden">
+          <div className="space-y-1 px-4 py-3">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-500"
+              >
+                {item.label}
               </a>
-            </Button>
+            ))}
+
+            <a
+              href="#contact"
+              onClick={() => setOpen(false)}
+              className="mt-1 block rounded-full bg-orange-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-md hover:bg-orange-600"
+            >
+              Book Appointment
+            </a>
           </div>
         </div>
-      </div>
+      )}
     </header>
   )
 }
