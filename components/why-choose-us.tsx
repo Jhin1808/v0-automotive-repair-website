@@ -1,52 +1,56 @@
-import { Shield, Clock, Award, DollarSign } from "lucide-react"
+"use client"
 
-const features = [
-  {
-    icon: Shield,
-    title: "Warranty Protected",
-    description: "12-month/12,000-mile warranty on all repairs and parts.",
-  },
-  {
-    icon: Clock,
-    title: "Fast Turnaround",
-    description: "Most repairs completed same-day with no appointment needed.",
-  },
-  {
-    icon: Award,
-    title: "Certified Technicians",
-    description: "ASE-certified mechanics with ongoing training and expertise.",
-  },
-  {
-    icon: DollarSign,
-    title: "Honest Pricing",
-    description: "Transparent estimates with no hidden fees or surprises.",
-  },
-]
+import { ClipboardCheck, Clock, DollarSign, ShieldCheck } from "lucide-react"
+
+import { Card, CardContent } from "@/components/ui/card"
+import { useLanguage } from "@/lib/language-context"
+
+const icons = [ShieldCheck, Clock, ClipboardCheck, DollarSign]
 
 export function WhyChooseUs() {
-  return (
-    <section className="py-20 md:py-32">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Why Choose DQ Automotive</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            We go beyond basic repairs to deliver exceptional service and peace of mind.
-          </p>
-        </div>
+  const { t } = useLanguage()
+  const features = t<Array<{ title: string; description: string }>>("whyChoose.features")
+  const cards = t<Array<{ label: string; value: string; description: string }>>("whyChoose.cards")
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => {
-            const Icon = feature.icon
-            return (
-              <div key={index} className="text-center">
-                <div className="inline-flex h-16 w-16 rounded-full bg-primary/10 items-center justify-center mb-4">
-                  <Icon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+  return (
+    <section className="py-24">
+      <div className="container mx-auto px-4">
+        <div className="rounded-[32px] border border-border/40 bg-gradient-to-br from-white/5 via-card/70 to-background/60 p-1">
+          <div className="grid gap-10 rounded-[28px] bg-background/60 p-10 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.4em] text-primary">{t("whyChoose.eyebrow")}</p>
+              <h2 className="mt-4 text-4xl font-semibold text-white">{t("whyChoose.title")}</h2>
+              <p className="mt-4 text-lg text-muted-foreground">{t("whyChoose.subtitle")}</p>
+              <div className="mt-10 grid gap-6">
+                {features.map((feature, index) => {
+                  const Icon = icons[index]
+                  return (
+                    <div key={feature.title} className="flex items-start gap-4">
+                      <div className="rounded-2xl bg-primary/15 p-3 text-primary">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-xl font-semibold text-white">{feature.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{feature.description}</p>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            )
-          })}
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              {cards.map((card) => (
+                <Card key={card.label} className="h-full rounded-2xl border-border/40 bg-card/80">
+                  <CardContent className="space-y-2 p-6">
+                    <p className="text-sm uppercase tracking-widest text-muted-foreground">{card.label}</p>
+                    <p className="text-3xl font-semibold text-white">{card.value}</p>
+                    <p className="text-sm text-muted-foreground">{card.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
