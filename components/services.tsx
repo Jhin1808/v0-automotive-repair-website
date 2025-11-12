@@ -1,68 +1,76 @@
-"use client"
-
-import { BadgeCheck, Bolt, Disc, Gauge, SteeringWheel, Wrench } from "lucide-react"
-
-import { Card, CardContent } from "@/components/ui/card"
-import { useLanguage } from "@/lib/language-context"
-
-const serviceIcons = {
-  preventive: Gauge,
-  brakes: Disc,
-  engine: Bolt,
-  electrical: BadgeCheck,
-  suspension: SteeringWheel,
-  specialty: Wrench,
-}
-
+// components/services.tsx
 export function Services() {
-  const { t } = useLanguage()
-
-  const services = t<Array<{
-    id: keyof typeof serviceIcons
-    title: string
-    description: string
-    highlights: string[]
-  }>>("services.groups")
+  const services = [
+    {
+      title: "Oil Changes & Fluids",
+      desc: "Full–service oil changes with filter, fluids, and safety inspection at your location.",
+      tag: "Maintenance",
+    },
+    {
+      title: "Brake Service & Repair",
+      desc: "Pads, rotors, calipers, and brake fluid service to restore safe stopping power.",
+      tag: "Safety",
+    },
+    {
+      title: "Battery & Electrical",
+      desc: "Battery testing & replacement, alternators, starters, and electrical diagnostics.",
+      tag: "Diagnostics",
+    },
+    {
+      title: "Suspension & Steering",
+      desc: "Struts, shocks, control arms, and steering components for a smoother, safer ride.",
+      tag: "Comfort",
+    },
+    {
+      title: "Check Engine Light",
+      desc: "Professional scan tools and step-by-step diagnostics for warning lights and codes.",
+      tag: "Diagnostics",
+    },
+    {
+      title: "Pre-Purchase Inspections",
+      desc: "On-site inspection before you buy a used car — avoid expensive surprises.",
+      tag: "Inspection",
+    },
+  ]
 
   return (
-    <section id="services" className="py-24">
-      <div className="container mx-auto px-4">
-        <div className="mb-12 max-w-4xl">
-          <p className="text-sm uppercase tracking-[0.4em] text-primary">{t("services.eyebrow")}</p>
-          <h2 className="mt-3 text-4xl font-semibold text-white lg:text-5xl">{t("services.title")}</h2>
-          <p className="mt-4 text-lg text-muted-foreground">{t("services.subtitle")}</p>
+    <div className="bg-slate-50 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+            Services
+          </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Full-Service Mobile Auto Repair
+          </h2>
+          <p className="mt-3 text-sm text-slate-600 sm:text-base">
+            From routine maintenance to advanced diagnostics, we handle most jobs on-site
+            so you can skip the tow truck and waiting room.
+          </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {services.map((service) => {
-            const Icon = serviceIcons[service.id]
-            return (
-              <Card key={service.id} className="glass-panel h-full rounded-[28px] border-border/60 bg-card/70 p-1">
-                <CardContent className="space-y-6 p-8">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-white">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground">{service.description}</p>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-3 text-sm text-muted-foreground">
-                    {service.highlights.map((highlight) => (
-                      <li key={highlight} className="flex gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                        <span>{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )
-          })}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <article
+              key={service.title}
+              className="flex flex-col rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <div className="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600">
+                {service.tag}
+              </div>
+              <h3 className="mt-3 text-base font-semibold text-slate-900">
+                {service.title}
+              </h3>
+              <p className="mt-2 flex-1 text-sm text-slate-600">
+                {service.desc}
+              </p>
+              <span className="mt-3 text-xs font-semibold text-orange-500">
+                Mobile service • By appointment
+              </span>
+            </article>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   )
 }

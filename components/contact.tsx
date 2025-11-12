@@ -2,286 +2,714 @@
 
 import { useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { useLanguage } from "@/lib/language-context"
-import { BadgeCheck, Calendar, Mail, MapPin, Phone, Send, Truck } from "lucide-react"
+type BookingData = {
+  service: string | null
+  servicePrice: number
+  date: string | null
+  time: string | null
+  firstName: string
+  lastName: string
+  phone: string
+  email: string
+  address: string
+  make: string
+  model: string
+  year: string
+  mileage: string
+  issues: string
+}
 
-const BASE_MOBILE_FEE = 35
+const MOBILE_FEE = 35
 
-const serviceCatalog = [
-  { value: "preventive", startingAt: 145, labelKey: "contact.services.preventive.label", descriptionKey: "contact.services.preventive.description" },
-  { value: "brakes", startingAt: 220, labelKey: "contact.services.brakes.label", descriptionKey: "contact.services.brakes.description" },
-  { value: "engine", startingAt: 480, labelKey: "contact.services.engine.label", descriptionKey: "contact.services.engine.description" },
-  { value: "electrical", startingAt: 180, labelKey: "contact.services.electrical.label", descriptionKey: "contact.services.electrical.description" },
-  { value: "suspension", startingAt: 260, labelKey: "contact.services.suspension.label", descriptionKey: "contact.services.suspension.description" },
-  { value: "fleet", startingAt: 0, labelKey: "contact.services.fleet.label", descriptionKey: "contact.services.fleet.description" },
+const SERVICES = [
+  {
+    id: "oil-change",
+    name: "Oil Change",
+    desc: "Premium oil and filter service with basic inspection.",
+    price: 80,
+  },
+  {
+    id: "brake-service",
+    name: "Brake Service",
+    desc: "Pads, rotors, and brake inspection for safe stopping.",
+    price: 150,
+  },
+  {
+    id: "suspension",
+    name: "Suspension Repair",
+    desc: "Struts, shocks, and suspension components.",
+    price: 200,
+  },
+  {
+    id: "tune-up",
+    name: "Tune-Up",
+    desc: "Spark plugs, filters, and performance check.",
+    price: 120,
+  },
+  {
+    id: "electrical",
+    name: "Electrical System",
+    desc: "Battery, alternator, starter, and wiring diagnostics.",
+    price: 140,
+  },
+  {
+    id: "diagnostics",
+    name: "Diagnostics",
+    desc: "Check engine light and full system scan.",
+    price: 90,
+  },
 ]
 
-type Status = "idle" | "success" | "error"
+const TIME_SLOTS = [
+  "9:00–11:00 AM",
+  "11:00–1:00 PM",
+  "1:00–3:00 PM",
+  "3:00–5:00 PM",
+  "After 5 PM (flexible)",
+]
+
+const MAKES = [
+  "Toyota",
+  "Honda",
+  "Ford",
+  "Chevrolet",
+  "Nissan",
+  "Subaru",
+  "Hyundai",
+  "Kia",
+  "Volkswagen",
+  "Other",
+]
 
 export function Contact() {
-  const { t } = useLanguage()
-  const [selectedService, setSelectedService] = useState("")
-  const [wantsMobileService, setWantsMobileService] = useState(true)
-  const [status, setStatus] = useState<Status>("idle")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formValues, setFormValues] = useState({
-    name: "",
-    email: "",
+  const [step, setStep] = useState(1)
+  const [booking, setBooking] = useState<BookingData>({
+    service: null,
+    servicePrice: 0,
+    date: null,
+    time: null,
+    firstName: "",
+    lastName: "",
     phone: "",
-    vehicle: "",
-    location: "",
-    preferredDate: "",
-    notes: "",
+    email: "",
+    address: "",
+    make: "",
+    model: "",
+    year: "",
+    mileage: "",
+    issues: "",
   })
 
-  const selected = serviceCatalog.find((service) => service.value === selectedService)
-  const estimate =
-    selected && selected.startingAt
-      ? selected.startingAt + (wantsMobileService ? BASE_MOBILE_FEE : 0)
-      : wantsMobileService
-        ? BASE_MOBILE_FEE
-        : 0
+  const total = (booking.servicePrice || 0) + MOBILE_FEE
+  const totalSteps = 4
+  const progressPercent = (step / totalSteps) * 100
 
-  const handleChange = (field: keyof typeof formValues) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setFormValues((prev) => ({ ...prev, [field]: event.target.value }))
+  function update<K extends keyof BookingData>(key: K, value: BookingData[K]) {
+    setBooking((prev) => ({ ...prev, [key]: value }))
+  }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setIsSubmitting(true)
-    setStatus("idle")
+  function handleSelectService(id: string, price: number) {
+    update("service", id)
+    update("servicePrice", price)
+  }
 
-    try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formValues,
-          wantsMobileService,
-          service: selectedService,
-          estimate,
-        }),
-      })
+  function validateStep(targetStep: number): boolean {
+    // validate the step we are *leaving* when we go “Next”
+    const current = step
+    if (targetStep <= current) return true
 
-      if (!response.ok) {
-        throw new Error("Request failed")
+    switch (current) {
+      case 1: {
+        if (!booking.service) {
+          alert("Please select a service before continuing.")
+          return false
+        }
+        return true
       }
+      case 2: {
+        if (!booking.date || !booking.time) {
+          alert("Please select a date and time window.")
+          return false
+        }
+        return true
+      }
+      case 3: {
+        const required = [
+          ["firstName", booking.firstName],
+          ["lastName", booking.lastName],
+          ["phone", booking.phone],
+          ["email", booking.email],
+          ["address", booking.address],
+        ] as const
 
-      setStatus("success")
-      setFormValues({
-        name: "",
-        email: "",
-        phone: "",
-        vehicle: "",
-        location: "",
-        preferredDate: "",
-        notes: "",
-      })
-      setSelectedService("")
-      setWantsMobileService(true)
-    } catch (error) {
-      console.error(error)
-      setStatus("error")
-    } finally {
-      setIsSubmitting(false)
+        for (const [label, value] of required) {
+          if (!value.trim()) {
+            alert(`Please fill in your ${label}.`)
+            return false
+          }
+        }
+        return true
+      }
+      default:
+        return true
     }
   }
 
+  function goToStep(target: number) {
+    if (target < 1 || target > totalSteps) return
+    if (!validateStep(target)) return
+    setStep(target)
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // Only validate final step; if ok, let the browser POST to /api/booking
+    if (!validateStep(step) || step !== totalSteps) {
+      e.preventDefault()
+      if (step !== totalSteps) {
+        alert("Please review and confirm your booking before submitting.")
+      }
+    }
+  }
+
+  const selectedService = SERVICES.find((s) => s.id === booking.service)
+
   return (
-    <section id="contact" className="py-24">
-      <div className="container mx-auto px-4">
-        <div className="mb-12 max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.4em] text-primary">{t("contact.eyebrow")}</p>
-          <h2 className="mt-3 text-4xl font-semibold text-white">{t("contact.title")}</h2>
-          <p className="mt-4 text-lg text-muted-foreground">{t("contact.subtitle")}</p>
-        </div>
+    <section id="contact" className="bg-slate-50 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
+          {/* Left: explainer */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+              Schedule Service
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              Book your mobile mechanic in four quick steps.
+            </h2>
+            <p className="mt-3 text-sm text-slate-600 sm:text-base">
+              Choose what you need, pick a time, share where your vehicle is, and tell
+              us about your car. We&apos;ll follow up with confirmation and final
+              pricing.
+            </p>
 
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-border/40 bg-card/80">
-            <CardContent className="p-8">
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t("contact.form.name")}</Label>
-                    <Input id="name" required value={formValues.name} onChange={handleChange("name")} placeholder="Taylor Jensen" />
+            <div className="mt-5 grid gap-4 text-sm text-slate-700 sm:grid-cols-2">
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Emergency / same-day?
+                </h3>
+                <p className="mt-2 text-xs text-slate-500">
+                  For urgent issues or a no-start situation, call or text directly.
+                </p>
+                <a
+                  href="tel:+12069229753"
+                  className="mt-3 inline-flex text-sm font-semibold text-orange-600 hover:text-orange-700"
+                >
+                  (206) 922-9753
+                </a>
+              </div>
+              <div className="rounded-2xl bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Service area & hours
+                </h3>
+                <p className="mt-2 text-xs text-slate-500">
+                  Seattle, Burien, Kent & nearby. Flexible evenings and weekends,
+                  weather permitting.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: multi-step form card */}
+          <div className="rounded-3xl bg-white p-6 shadow-md">
+            {/* Progress header */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                <span>Step {step} of {totalSteps}</span>
+                <span>
+                  {Math.round(progressPercent)}% complete
+                </span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-slate-100">
+                <div
+                  className="h-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
+              <div className="mt-4 grid grid-cols-4 gap-2 text-[0.65rem] font-semibold uppercase tracking-wide">
+                {["Service", "Date & Time", "Contact Info", "Vehicle & Review"].map(
+                  (label, idx) => {
+                    const stepNumber = idx + 1
+                    const isActive = stepNumber === step
+                    const isCompleted = stepNumber < step
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => goToStep(stepNumber)}
+                        className={
+                          "flex items-center justify-center rounded-full px-2 py-1 transition " +
+                          (isActive
+                            ? "bg-orange-500 text-white"
+                            : isCompleted
+                            ? "bg-emerald-500 text-white"
+                            : "bg-slate-100 text-slate-500")
+                        }
+                      >
+                        {stepNumber}. {label}
+                      </button>
+                    )
+                  }
+                )}
+              </div>
+            </div>
+
+            <form
+              method="POST"
+              action="/api/booking"
+              onSubmit={handleSubmit}
+              className="space-y-6 text-sm"
+            >
+              {/* Hidden fields to make sure API receives key values */}
+              <input
+                type="hidden"
+                name="service"
+                value={booking.service ?? ""}
+              />
+              <input
+                type="hidden"
+                name="servicePrice"
+                value={booking.servicePrice || 0}
+              />
+              <input
+                type="hidden"
+                name="date"
+                value={booking.date ?? ""}
+              />
+              <input
+                type="hidden"
+                name="time"
+                value={booking.time ?? ""}
+              />
+              <input
+                type="hidden"
+                name="mobileFee"
+                value={MOBILE_FEE}
+              />
+              <input
+                type="hidden"
+                name="totalEstimate"
+                value={total}
+              />
+
+              {/* STEP 1 – SERVICE */}
+              {step === 1 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Step 1: Select your service
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Pick the option that best matches what you need. You can describe
+                    details later.
+                  </p>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {SERVICES.map((service) => {
+                      const selected = booking.service === service.id
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() =>
+                            handleSelectService(service.id, service.price)
+                          }
+                          className={
+                            "flex flex-col rounded-2xl border p-4 text-left transition hover:border-orange-400 hover:shadow-sm " +
+                            (selected
+                              ? "border-orange-500 bg-orange-50"
+                              : "border-slate-200 bg-white")
+                          }
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold text-slate-900">
+                              {service.name}
+                            </span>
+                            <span className="text-sm font-bold text-orange-600">
+                              ${service.price}+
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-600">
+                            {service.desc}
+                          </p>
+                          {selected && (
+                            <span className="mt-2 inline-flex w-fit rounded-full bg-orange-500/10 px-2 py-0.5 text-[0.65rem] font-semibold text-orange-600">
+                              Selected
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">{t("contact.form.phone")}</Label>
-                    <Input id="phone" required type="tel" value={formValues.phone} onChange={handleChange("phone")} placeholder="(206) 555-0123" />
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="text-xs text-slate-500">
+                      Mobile service fee: ${MOBILE_FEE} (applied once per visit)
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goToStep(2)}
+                      className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-600"
+                    >
+                      Next: Date &amp; Time
+                    </button>
                   </div>
                 </div>
+              )}
 
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">{t("contact.form.email")}</Label>
-                    <Input id="email" required type="email" value={formValues.email} onChange={handleChange("email")} placeholder="you@email.com" />
+              {/* STEP 2 – DATE & TIME */}
+              {step === 2 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Step 2: Choose date &amp; time
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Pick a preferred day and time window. We&apos;ll confirm exact
+                    availability.
+                  </p>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Preferred date *
+                      </label>
+                      <input
+                        type="date"
+                        name="preferredDateDisplay"
+                        value={booking.date ?? ""}
+                        onChange={(e) => update("date", e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Time window *
+                      </label>
+                      <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {TIME_SLOTS.map((slot) => {
+                          const selected = booking.time === slot
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => update("time", slot)}
+                              className={
+                                "rounded-full border px-3 py-2 text-xs font-medium transition " +
+                                (selected
+                                  ? "border-orange-500 bg-orange-50 text-orange-700"
+                                  : "border-slate-200 bg-white text-slate-700 hover:border-orange-400")
+                              }
+                            >
+                              {slot}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="preferredDate">{t("contact.form.preferredDate")}</Label>
-                    <Input id="preferredDate" type="date" value={formValues.preferredDate} onChange={handleChange("preferredDate")} />
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => goToStep(1)}
+                      className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goToStep(3)}
+                      className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-600"
+                    >
+                      Next: Contact Info
+                    </button>
                   </div>
                 </div>
+              )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="vehicle">{t("contact.form.vehicle")}</Label>
-                  <Input id="vehicle" required value={formValues.vehicle} onChange={handleChange("vehicle")} placeholder="2021 Lexus RX 350" />
+              {/* STEP 3 – CONTACT INFO */}
+              {step === 3 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Step 3: Your contact info &amp; address
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    We&apos;ll use this to confirm your appointment and send updates.
+                  </p>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        First name *
+                      </label>
+                      <input
+                        name="firstName"
+                        type="text"
+                        value={booking.firstName}
+                        onChange={(e) => update("firstName", e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Last name *
+                      </label>
+                      <input
+                        name="lastName"
+                        type="text"
+                        value={booking.lastName}
+                        onChange={(e) => update("lastName", e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Phone number *
+                      </label>
+                      <input
+                        name="phone"
+                        type="tel"
+                        value={booking.phone}
+                        onChange={(e) => update("phone", e.target.value)}
+                        placeholder="(206) 123-4567"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Email address *
+                      </label>
+                      <input
+                        name="email"
+                        type="email"
+                        value={booking.email}
+                        onChange={(e) => update("email", e.target.value)}
+                        placeholder="you@example.com"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Service address *
+                      </label>
+                      <input
+                        name="address"
+                        type="text"
+                        value={booking.address}
+                        onChange={(e) => update("address", e.target.value)}
+                        placeholder="123 Main St, Seattle, WA"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => goToStep(2)}
+                      className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goToStep(4)}
+                      className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-600"
+                    >
+                      Next: Vehicle &amp; Review
+                    </button>
+                  </div>
                 </div>
+              )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="location">{t("contact.form.location")}</Label>
-                  <Input id="location" required value={formValues.location} onChange={handleChange("location")} placeholder="South Seattle, 98168" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t("contact.form.service")}</Label>
-                  <Select value={selectedService} onValueChange={setSelectedService}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("contact.form.selectService")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {serviceCatalog.map((service) => (
-                        <SelectItem key={service.value} value={service.value}>
-                          {t(service.labelKey)} · {service.startingAt ? `$${service.startingAt}+` : t("contact.form.customQuote")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selected && (
-                    <p className="text-xs text-muted-foreground">{t(selected.descriptionKey)}</p>
-                  )}
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-background/60 p-4">
-                  <Checkbox
-                    id="mobile-service"
-                    checked={wantsMobileService}
-                    onCheckedChange={(checked) => setWantsMobileService(Boolean(checked))}
-                    className="mt-1"
-                  />
+              {/* STEP 4 – VEHICLE DETAILS + REVIEW */}
+              {step === 4 && (
+                <div className="space-y-5">
                   <div>
-                    <Label htmlFor="mobile-service" className="font-medium text-white">
-                      {t("contact.form.mobileService")}
-                    </Label>
-                    <p className="text-sm text-muted-foreground">{t("contact.form.mobileDescription")}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="notes">{t("contact.form.notes")}</Label>
-                  <Textarea
-                    id="notes"
-                    value={formValues.notes}
-                    onChange={handleChange("notes")}
-                    placeholder={t("contact.form.notesPlaceholder")}
-                    rows={5}
-                  />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4">
-                  <Button type="submit" className="gap-2" disabled={isSubmitting}>
-                    <Send className="h-4 w-4" />
-                    {isSubmitting ? t("contact.form.submitting") : t("contact.form.submit")}
-                  </Button>
-                  {status === "success" && <p className="text-sm text-emerald-400">{t("contact.feedback.success")}</p>}
-                  {status === "error" && <p className="text-sm text-red-400">{t("contact.feedback.error")}</p>}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <Card className="border-border/40 bg-card/80">
-              <CardContent className="space-y-6 p-8">
-                <p className="text-sm uppercase tracking-[0.4em] text-primary">{t("contact.summary.title")}</p>
-                <div className="grid gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-white">{t("contact.summary.phoneLabel")}</p>
-                      <a href="tel:+12069229753" className="text-white/70">
-                        (206) 922-9753
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-white">{t("contact.summary.emailLabel")}</p>
-                      <a href="mailto:quang.nguyen@dqautomotivellc.com" className="text-white/70">
-                        quang.nguyen@dqautomotivellc.com
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-white">{t("contact.summary.areaLabel")}</p>
-                      <p>Seattle · Burien · Kent</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-white">{t("contact.summary.hoursLabel")}</p>
-                      <p>{t("contact.summary.hoursValue")}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/40 bg-card/80">
-              <CardContent className="space-y-6 p-8">
-                <div className="flex items-center gap-3">
-                  <Truck className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">{t("contact.estimate.title")}</p>
-                    <p className="text-3xl font-semibold text-white">
-                      {estimate > 0 ? `$${estimate.toLocaleString()}` : t("contact.estimate.placeholder")}
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Step 4: Vehicle details &amp; confirm booking
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Share your vehicle info and review your request before sending.
                     </p>
                   </div>
-                </div>
-                <p className="text-sm text-muted-foreground">{t("contact.estimate.description")}</p>
-                <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-sm text-muted-foreground">
-                  <div className="flex items-center justify-between text-white">
-                    <span>{t("contact.estimate.service")}</span>
-                    <span>{selected ? `$${selected.startingAt}+` : t("contact.estimate.pending")}</span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-white">
-                    <span>{t("contact.estimate.mobileFee")}</span>
-                    <span>{wantsMobileService ? `$${BASE_MOBILE_FEE}` : "$0"}</span>
-                  </div>
-                  <hr className="my-3 border-border/40" />
-                  <div className="flex items-center justify-between text-white">
-                    <span>{t("contact.estimate.total")}</span>
-                    <span className="text-xl font-semibold">
-                      {estimate > 0 ? `$${estimate.toLocaleString()}` : t("contact.estimate.placeholder")}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">{t("contact.estimate.disclaimer")}</p>
-              </CardContent>
-            </Card>
 
-            <Card className="border-border/40 bg-card/80">
-              <CardContent className="flex flex-col gap-4 p-8 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.4em] text-primary">{t("contact.guarantee.eyebrow")}</p>
-                  <p className="mt-1 text-lg font-semibold text-white">{t("contact.guarantee.title")}</p>
-                  <p className="text-sm text-muted-foreground">{t("contact.guarantee.description")}</p>
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+                    {/* Vehicle fields */}
+                    <div className="space-y-3">
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Vehicle make *
+                          </label>
+                          <select
+                            name="make"
+                            value={booking.make}
+                            onChange={(e) => update("make", e.target.value)}
+                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            required
+                          >
+                            <option value="">Select make</option>
+                            {MAKES.map((m) => (
+                              <option key={m} value={m.toLowerCase()}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Vehicle model *
+                          </label>
+                          <input
+                            name="model"
+                            type="text"
+                            value={booking.model}
+                            onChange={(e) => update("model", e.target.value)}
+                            placeholder="e.g., Camry"
+                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Year *
+                          </label>
+                          <input
+                            name="year"
+                            type="number"
+                            value={booking.year}
+                            onChange={(e) => update("year", e.target.value)}
+                            placeholder="2020"
+                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Mileage (approx.)
+                          </label>
+                          <input
+                            name="mileage"
+                            type="number"
+                            value={booking.mileage}
+                            onChange={(e) => update("mileage", e.target.value)}
+                            placeholder="50000"
+                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Vehicle issues / description
+                        </label>
+                        <textarea
+                          name="issues"
+                          rows={4}
+                          value={booking.issues}
+                          onChange={(e) => update("issues", e.target.value)}
+                          placeholder="Describe any noises, warning lights, or recent work. The more detail, the better."
+                          className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Sidebar summary */}
+                    <aside className="space-y-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-700">
+                      <h4 className="text-sm font-semibold text-slate-900">
+                        Request summary
+                      </h4>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Service</span>
+                          <span className="font-medium text-slate-900">
+                            {selectedService ? selectedService.name : "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Date</span>
+                          <span className="font-medium text-slate-900">
+                            {booking.date || "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Time window</span>
+                          <span className="font-medium text-slate-900">
+                            {booking.time || "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2">
+                          <span className="text-slate-500">Service estimate</span>
+                          <span className="font-medium text-slate-900">
+                            {booking.servicePrice ? `$${booking.servicePrice}+` : "-"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Mobile fee</span>
+                          <span className="font-medium text-slate-900">
+                            ${MOBILE_FEE}
+                          </span>
+                        </div>
+                        <div className="mt-2 border-t border-slate-200 pt-2 flex justify-between text-sm font-semibold">
+                          <span>Estimated total</span>
+                          <span className="text-orange-600">
+                            {booking.service
+                              ? `$${total}+`
+                              : "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+                        <p className="text-[0.7rem] font-semibold text-yellow-800">
+                          Important notes:
+                        </p>
+                        <ul className="mt-1 space-y-1 text-[0.7rem] text-yellow-800">
+                          <li>• Please ensure the vehicle is accessible at the scheduled time.</li>
+                          <li>• Final pricing may vary based on diagnosis and parts.</li>
+                          <li>• You&apos;ll receive a confirmation message with details.</li>
+                        </ul>
+                      </div>
+                    </aside>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => goToStep(3)}
+                      className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-full bg-orange-500 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-orange-600"
+                    >
+                      Confirm booking
+                    </button>
+                  </div>
                 </div>
-                <div className="rounded-full bg-primary/15 px-5 py-2 text-sm font-semibold text-primary">
-                  <BadgeCheck className="mr-2 inline h-4 w-4" />
-                  {t("contact.guarantee.badge")}
-                </div>
-              </CardContent>
-            </Card>
+              )}
+
+              <p className="pt-1 text-[0.65rem] text-slate-500">
+                By submitting, you agree to be contacted about your appointment by
+                phone, text, or email. No spam — ever.
+              </p>
+            </form>
           </div>
         </div>
       </div>

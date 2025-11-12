@@ -1,122 +1,98 @@
-"use client"
-
-import type React from "react"
-
-import { Button } from "@/components/ui/button"
-import { ArrowUpRight, CalendarDays, Phone, ShieldCheck, Sparkles, Zap } from "lucide-react"
-import { useLanguage } from "@/lib/language-context"
-
+// components/hero.tsx
 export function Hero() {
-  const { t } = useLanguage()
-  const metrics = t<Array<{ label: string; value: string }>>("hero.metrics")
-  const highlights = t<string[]>("hero.card.highlights")
-
-  const scrollToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
-
   return (
-    <section className="relative isolate overflow-hidden pt-40 pb-24" id="home">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
-        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-primary/30 blur-[120px]" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-slate-900 to-slate-800 py-20 text-white">
+      <div className="pointer-events-none absolute inset-0 opacity-40">
+        <div className="absolute -top-32 -left-16 h-72 w-72 rounded-full bg-orange-500 blur-3xl" />
+        <div className="absolute -bottom-32 -right-16 h-72 w-72 rounded-full bg-blue-500 blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
-              <Sparkles className="h-4 w-4" />
-              {t("hero.badge")}
-            </div>
-            <div>
-              <h1 className="text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-                {t("hero.title")}
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">{t("hero.description")}</p>
-            </div>
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+        {/* Left: content */}
+        <div className="max-w-xl space-y-6">
+          <p className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-orange-300">
+            Mobile mechanic • Seattle · Burien · Kent
+          </p>
 
-            <div className="grid gap-6 sm:grid-cols-3">
-              {metrics.map((metric) => (
-                <div key={metric.label} className="rounded-2xl border border-border/60 bg-card/60 p-4">
-                  <p className="text-3xl font-semibold text-white">{metric.value}</p>
-                  <p className="text-sm text-muted-foreground">{metric.label}</p>
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+            <span className="block">Professional Mobile</span>
+            <span className="block text-orange-400">Auto Repair That Comes to You</span>
+          </h1>
+
+          <p className="text-base text-slate-200 sm:text-lg">
+            No towing, no waiting rooms. DQ Automotive brings full–service diagnostics,
+            repairs, and maintenance directly to your driveway or workplace.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:bg-orange-600"
+            >
+              Book Mobile Service
+            </a>
+
+            <a
+              href="tel:+12069229753"
+              className="inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold text-white/90 hover:bg-white/10"
+            >
+              Call: (206) 922-9753
+            </a>
+          </div>
+
+          <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+            <div className="rounded-xl bg-white/5 p-4">
+              <dt className="text-slate-200">Same-Day Availability</dt>
+              <dd className="mt-1 text-2xl font-bold text-white">7 days</dd>
+            </div>
+            <div className="rounded-xl bg-white/5 p-4">
+              <dt className="text-slate-200">Service Area</dt>
+              <dd className="mt-1 text-2xl font-bold text-white">Seattle+</dd>
+            </div>
+            <div className="rounded-xl bg-white/5 p-4">
+              <dt className="text-slate-200">Customer Rating</dt>
+              <dd className="mt-1 text-2xl font-bold text-orange-300">5.0★</dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Right: floating card / estimate */}
+        <div className="lg:flex-1">
+          <div className="mx-auto max-w-md rounded-3xl bg-white p-6 text-slate-900 shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900">
+              Quick Service Estimate
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Typical price ranges for common mobile services.
+            </p>
+
+            <div className="mt-4 space-y-3 text-sm">
+              {[
+                ["Oil Change", "$80–$120"],
+                ["Brake Service", "$250–$600"],
+                ["Battery Replacement", "$180–$350"],
+                ["Diagnostic Scan", "$80–$140"],
+              ].map(([name, price]) => (
+                <div
+                  key={name}
+                  className="flex items-center justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0"
+                >
+                  <span className="font-medium text-slate-800">{name}</span>
+                  <span className="font-semibold text-orange-500">{price}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <Button size="lg" className="gap-2 text-base font-semibold" asChild>
-                <a href="#contact" onClick={scrollToContact}>
-                  <CalendarDays className="h-5 w-5" />
-                  {t("hero.primaryCta")}
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" className="gap-2 text-base" asChild>
-                <a href="tel:+12069229753">
-                  <Phone className="h-5 w-5" />
-                  {t("hero.secondaryCta")} · (206) 922-9753
-                </a>
-              </Button>
-            </div>
+            <p className="mt-3 text-xs text-slate-500">
+              Final pricing depends on vehicle make/model and exact issue. Get a personalized quote in minutes.
+            </p>
 
-            <div className="flex flex-wrap gap-6 text-xs uppercase tracking-wide text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                {t("hero.badges.warranty")}
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                {t("hero.badges.response")}
-              </div>
-              <div className="flex items-center gap-2">
-                <ArrowUpRight className="h-4 w-4 text-primary" />
-                {t("hero.badges.fleet")}
-              </div>
-            </div>
-          </div>
-
-          <div className="relative rounded-3xl border border-border/60 bg-gradient-to-b from-white/5 to-white/0 p-1">
-            <div className="glass-panel rounded-[28px] p-8">
-              <div className="space-y-6">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("hero.card.tag")}</p>
-                  <p className="text-2xl font-semibold text-white">{t("hero.card.title")}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("hero.card.description")}</p>
-                </div>
-
-                <div className="rounded-2xl border border-border/60 bg-background/80 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("hero.card.availabilityLabel")}</p>
-                      <p className="text-lg font-semibold text-white">{t("hero.card.availabilityValue")}</p>
-                    </div>
-                    <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                      {t("hero.card.turnaround")}
-                    </span>
-                  </div>
-                  <hr className="my-4 border-border/40" />
-                  <div className="space-y-3 text-sm text-muted-foreground">
-                    {highlights.map((item) => (
-                      <div key={item} className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-primary/70" />
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Button className="w-full gap-2" asChild>
-                  <a href="#contact" onClick={scrollToContact}>
-                    {t("hero.card.cta")}
-                    <ArrowUpRight className="h-4 w-4" />
-                  </a>
-                </Button>
-
-                <p className="text-xs text-muted-foreground">{t("hero.card.disclaimer")}</p>
-              </div>
-            </div>
+            <a
+              href="#contact"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              Request Exact Quote
+            </a>
           </div>
         </div>
       </div>
