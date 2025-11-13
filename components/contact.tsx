@@ -17,26 +17,101 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { useLanguage } from "@/lib/language-context"
 
+// Price ranges now match the homepage "Quick Service Estimate" section
 const services = [
-  { value: "oil-change", labelEn: "Oil Change", labelVi: "Thay Dầu", price: 55 },
-  { value: "brake-service", labelEn: "Brake Service", labelVi: "Dịch Vụ Phanh", price: 175 },
-  { value: "suspension", labelEn: "Suspension Repair", labelVi: "Sửa Hệ Thống Treo", price: 225 },
-  { value: "tune-up", labelEn: "Tune-Up", labelVi: "Bảo Dưỡng Động Cơ", price: 110 },
-  { value: "electrical", labelEn: "Electrical Systems", labelVi: "Hệ Thống Điện", price: 135 },
-  { value: "timing-belt", labelEn: "Timing Belt Replacement", labelVi: "Thay Dây Curoa Cam", price: 450 },
-  { value: "timing-chain", labelEn: "Timing Chain Service", labelVi: "Dịch Vụ Xích Cam", price: 550 },
-  { value: "inspection", labelEn: "Vehicle Inspection", labelVi: "Kiểm Tra Xe", price: 65 },
-  { value: "diagnostics", labelEn: "Engine Diagnostics", labelVi: "Chẩn Đoán Động Cơ", price: 90 },
-  { value: "general", labelEn: "General Repair", labelVi: "Sửa Chữa Chung", price: 90 },
+  // Main ones shown on homepage
+  {
+    value: "oil-change",
+    labelEn: "Oil Change",
+    labelVi: "Thay Dầu",
+    priceRange: "80–120", // $80–$120
+  },
+  {
+    value: "brake-service",
+    labelEn: "Brake Service",
+    labelVi: "Dịch Vụ Phanh",
+    priceRange: "250–600", // $250–$600
+  },
+  {
+    value: "battery-replacement",
+    labelEn: "Battery Replacement",
+    labelVi: "Thay Bình Ắc Quy",
+    priceRange: "180–350", // $180–$350
+  },
+  {
+    value: "diagnostic-scan",
+    labelEn: "Diagnostic Scan",
+    labelVi: "Chẩn Đoán Động Cơ",
+    priceRange: "80–140", // $80–$140
+  },
+
+  // Extra services (you can remove or tweak these if you want)
+  {
+    value: "suspension",
+    labelEn: "Suspension Repair",
+    labelVi: "Sửa Hệ Thống Treo",
+    priceRange: "225–400",
+  },
+  {
+    value: "tune-up",
+    labelEn: "Tune-Up",
+    labelVi: "Bảo Dưỡng Động Cơ",
+    priceRange: "110–200",
+  },
+  {
+    value: "electrical",
+    labelEn: "Electrical Systems",
+    labelVi: "Hệ Thống Điện",
+    priceRange: "135–280",
+  },
+  {
+    value: "timing-belt",
+    labelEn: "Timing Belt Replacement",
+    labelVi: "Thay Dây Curoa Cam",
+    priceRange: "450–850",
+  },
+  {
+    value: "timing-chain",
+    labelEn: "Timing Chain Service",
+    labelVi: "Dịch Vụ Xích Cam",
+    priceRange: "550–1200",
+  },
+  {
+    value: "inspection",
+    labelEn: "Vehicle Inspection",
+    labelVi: "Kiểm Tra Xe",
+    priceRange: "65–120",
+  },
+  {
+    value: "general",
+    labelEn: "General Repair",
+    labelVi: "Sửa Chữa Chung",
+    priceRange: "90–250",
+  },
 ]
 
-const BASE_MOBILE_FEE = 35 // minimum mobile service fee
+const BASE_MOBILE_FEE = 35 // minimum mobile service fee (flat, not ranged)
+
+// Time slots for the dropdown
+const TIME_SLOTS = [
+  "9:00–11:00 AM",
+  "11:00–1:00 PM",
+  "1:00–3:00 PM",
+  "3:00–5:00 PM",
+  "After 5 PM (flexible)",
+]
+
+function todayISO() {
+  return new Date().toISOString().split("T")[0]
+}
 
 export function Contact() {
   const { t, language } = useLanguage()
 
   const [selectedService, setSelectedService] = useState<string>("")
   const [wantsMobileService, setWantsMobileService] = useState(false)
+  const [preferredDate, setPreferredDate] = useState<string>("")
+  const [preferredTime, setPreferredTime] = useState<string>("")
 
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -46,11 +121,9 @@ export function Contact() {
   const formRef = useRef<HTMLFormElement | null>(null)
 
   const selectedServiceData = services.find((s) => s.value === selectedService)
-  const totalEstimate = selectedServiceData
-    ? selectedServiceData.price + (wantsMobileService ? BASE_MOBILE_FEE : 0)
-    : wantsMobileService
-    ? BASE_MOBILE_FEE
-    : 0
+  const serviceRangeLabel = selectedServiceData
+    ? `$${selectedServiceData.priceRange}`
+    : "--"
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -82,6 +155,11 @@ export function Contact() {
       if (!phone) errs.phone = t("contact.form.errors.phoneRequired")
       if (!selectedService)
         errs.service = t("contact.form.errors.serviceRequired")
+      if (!preferredDate)
+        errs.date = t("contact.form.errors.dateRequired") ?? "Please select a date."
+      if (!preferredTime)
+        errs.time =
+          t("contact.form.errors.timeRequired") ?? "Please select a time window."
       if (!message || message.length < 5)
         errs.message = t("contact.form.errors.messageRequired")
 
@@ -97,7 +175,11 @@ export function Contact() {
         message,
         service: selectedService,
         wantsMobileService,
-        estimate: totalEstimate,
+        estimate: serviceRangeLabel, // keep old key name but now a string range
+        estimateRange: serviceRangeLabel,
+        mobileFee: wantsMobileService ? BASE_MOBILE_FEE : 0,
+        preferredDate,
+        preferredTime,
         language,
         website, // honeypot
       }
@@ -125,6 +207,8 @@ export function Contact() {
       form.reset()
       setSelectedService("")
       setWantsMobileService(false)
+      setPreferredDate("")
+      setPreferredTime("")
       setFieldErrors({})
     } catch (err: any) {
       if (err?.message !== "invalid") {
@@ -208,6 +292,62 @@ export function Contact() {
                     )}
                   </div>
 
+                  {/* Date + Time */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="preferred-date">
+                        {t("contact.form.date") ?? "Preferred date"}
+                      </Label>
+                      <Input
+                        id="preferred-date"
+                        name="preferredDate"
+                        type="date"
+                        min={todayISO()}
+                        value={preferredDate}
+                        onChange={(e) => setPreferredDate(e.target.value)}
+                        required
+                      />
+                      {fieldErrors.date && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {fieldErrors.date}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="preferred-time">
+                        {t("contact.form.timeWindow") ?? "Preferred time"}
+                      </Label>
+                      <Select
+                        value={preferredTime}
+                        onValueChange={(v) => {
+                          setPreferredTime(v)
+                          setFieldErrors((prev) => ({ ...prev, time: "" }))
+                        }}
+                      >
+                        <SelectTrigger id="preferred-time">
+                          <SelectValue
+                            placeholder={
+                              t("contact.form.selectTimeWindow") ??
+                              "Select a time window"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TIME_SLOTS.map((slot) => (
+                            <SelectItem key={slot} value={slot}>
+                              {slot}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {fieldErrors.time && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {fieldErrors.time}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Service select */}
                   <div className="space-y-2">
                     <Label htmlFor="service">{t("contact.form.service")}</Label>
@@ -232,7 +372,7 @@ export function Contact() {
                             {language === "vi"
                               ? service.labelVi
                               : service.labelEn}{" "}
-                            - ${service.price}
+                            – ${service.priceRange}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -290,27 +430,35 @@ export function Contact() {
                               {t("contact.pricing.serviceEstimate")}:
                             </span>
                             <span className="font-semibold">
-                              ${selectedServiceData?.price}
+                              {serviceRangeLabel}
                             </span>
                           </div>
 
-                          {wantsMobileService && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                {t("contact.pricing.mobileFee")}:
-                              </span>
-                              <span className="font-semibold">
-                                +${BASE_MOBILE_FEE}+
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="border-t border-primary/20 pt-2 flex justify-between">
-                            <span className="font-bold">
-                              {t("contact.pricing.total")}:
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              {t("contact.pricing.mobileFee")}:
                             </span>
-                            <span className="font-bold text-primary text-lg">
-                              ${totalEstimate}+
+                            <span className="font-semibold">
+                              {wantsMobileService ? `+$${BASE_MOBILE_FEE}` : "$0"}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              {t("contact.pricing.date") ?? "Preferred date"}:
+                            </span>
+                            <span className="font-semibold">
+                              {preferredDate || "--"}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              {t("contact.pricing.timeWindow") ??
+                                "Preferred time"}:
+                            </span>
+                            <span className="font-semibold">
+                              {preferredTime || "--"}
                             </span>
                           </div>
 
