@@ -1,61 +1,25 @@
-"use client"
-
-import { Wrench } from "lucide-react"
-import { useLanguage } from "@/lib/language-context"
-
+// components/footer.tsx
 export function Footer() {
-  const { t } = useLanguage()
-
   return (
-    <footer className="border-t border-border/40 py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Wrench className="h-5 w-5 text-primary" />
-              <span className="font-bold">DQ Automotive</span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">{t("footer.tagline")}</p>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4">{t("footer.quickLinks")}</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#services" className="hover:text-foreground transition-colors">
-                  {t("footer.services")}
-                </a>
-              </li>
-              <li>
-                <a href="#about" className="hover:text-foreground transition-colors">
-                  {t("footer.about")}
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-foreground transition-colors">
-                  {t("footer.contact")}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4">{t("footer.contactInfo")}</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>(206) 922-9753</li>
-              <li>
-                <a href="mailto:service@dqautomotive.net" className="hover:underline">service@dqautomotive.net</a>
-              </li>
-              <li>10525 16th Ave S</li>
-              <li>Seattle, WA 98168</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-          <p>
-            &copy; {new Date().getFullYear()} DQ Automotive. {t("footer.rights")}
-          </p>
+    <footer className="border-t border-slate-200 bg-white py-6">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p>
+          © {new Date().getFullYear()} DQ Automotive. Mobile mechanic service in Seattle,
+          Burien & Kent.
+        </p>
+        <div className="flex flex-wrap items-center gap-4">
+          <a
+            href="tel:+12069229753"
+            className="font-semibold text-slate-700 hover:text-orange-600"
+          >
+            Call: (206) 922-9753
+          </a>
+          <a
+            href="#contact"
+            className="text-xs font-medium uppercase tracking-wide text-slate-500 hover:text-orange-600"
+          >
+            Book Appointment
+          </a>
         </div>
       </div>
     </footer>
