@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,12 +32,54 @@ export function Contact() {
   const { t, language } = useLanguage()
   const [selectedService, setSelectedService] = useState<string>("")
   const [wantsMobileService, setWantsMobileService] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+
   const selectedServiceData = services.find((s) => s.value === selectedService)
   const totalEstimate = selectedServiceData
     ? selectedServiceData.price + (wantsMobileService ? BASE_MOBILE_FEE : 0)
     : wantsMobileService
       ? BASE_MOBILE_FEE
       : 0
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus("idle")
+
+    try {
+      const response = await fetch("/api/send-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          service: selectedService,
+          wantsMobileService,
+          totalEstimate,
+        }),
+      })
+
+      if (response.ok) {
+        setSubmitStatus("success")
+        setFormData({ name: "", email: "", phone: "", message: "" })
+        setSelectedService("")
+        setWantsMobileService(false)
+      } else {
+        setSubmitStatus("error")
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      setSubmitStatus("error")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <section id="contact" className="py-20 md:py-32 bg-card/30">
@@ -49,20 +93,55 @@ export function Contact() {
           <div>
             <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
               <CardContent className="p-8">
-                <form className="space-y-6">
+                {submitStatus === "success" && (
+                  <div className="bg-green-500/10 border border-green-500/20 rounded p-4 mb-6">
+                    <p className="text-sm text-green-700 dark:text-green-400">
+                      Thank you! We received your appointment request and will contact you soon.
+                    </p>
+                  </div>
+                )}
+                {submitStatus === "error" && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded p-4 mb-6">
+                    <p className="text-sm text-red-700 dark:text-red-400">
+                      Error submitting your request. Please try again or call us directly.
+                    </p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="name">{t("contact.form.name")}</Label>
-                    <Input id="name" placeholder="John Doe" />
+                    <Input
+                      id="name"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">{t("contact.form.email")}</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">{t("contact.form.phone")}</Label>
-                    <Input id="phone" type="tel" placeholder="(206) 555-1234" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="(206) 555-1234"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -131,11 +210,17 @@ export function Contact() {
 
                   <div className="space-y-2">
                     <Label htmlFor="message">{t("contact.form.message")}</Label>
-                    <Textarea id="message" placeholder={t("contact.form.messagePlaceholder")} rows={4} />
+                    <Textarea
+                      id="message"
+                      placeholder={t("contact.form.messagePlaceholder")}
+                      rows={4}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full font-semibold">
-                    {t("contact.form.submit")}
+                  <Button type="submit" size="lg" className="w-full font-semibold" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending..." : t("contact.form.submit")}
                   </Button>
                 </form>
               </CardContent>
