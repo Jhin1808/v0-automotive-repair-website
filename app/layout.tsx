@@ -1,15 +1,10 @@
-// app/layout.tsx
 import type { Metadata } from "next"
 import "./globals.css"
+import { Providers } from "./providers"
 
 export const metadata: Metadata = {
   title: "DQ Automotive | Mobile Mechanic",
-  description: "Mobile auto repair & diagnostics serving Seattle, Burien, and Kent.",
-  icons: {
-    icon: "/favicon.png",       // or "/dq-logo.png" if you used that name
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
-  },
+  description: "Mobile auto repair serving Seattle, Burien, and Kent.",
 }
 
 export default function RootLayout({
@@ -19,8 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }
+
 
