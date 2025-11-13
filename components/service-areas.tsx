@@ -1,60 +1,61 @@
-import { MapPin, Check } from "lucide-react"
-import { Card } from "@/components/ui/card"
-
+// components/service-areas.tsx
 export function ServiceAreas() {
   const areas = [
     {
       city: "Seattle",
-      description: "Full mobile service coverage throughout Seattle and surrounding neighborhoods",
+      desc: "Downtown, Beacon Hill, Rainier Valley, West Seattle, and surrounding neighborhoods.",
+      badge: "Primary",
     },
     {
       city: "Burien",
-      description: "Convenient mobile repair service for all Burien residents",
+      desc: "Residential neighborhoods, apartments, and workplace parking lots.",
+      badge: "Popular",
     },
     {
       city: "Kent",
-      description: "Professional mobile automotive service across Kent area",
+      desc: "Southcenter, Kent, and nearby South King County locations.",
+      badge: "Expanded",
     },
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Service Areas</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            I provide mobile automotive repair services throughout the greater Seattle area
+    <section className="bg-white py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+              Service Areas
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              We Come to You in Seattle, Burien & Kent
+            </h2>
+            <p className="mt-3 max-w-xl text-sm text-slate-600 sm:text-base">
+              Driveway, street parking, or workplace — as long as it’s safe and legal to
+              work, we can service your vehicle on-site.
+            </p>
+          </div>
+          <p className="text-xs text-slate-500">
+            Unsure if you&apos;re in range? Send your address in the booking form and
+            we&apos;ll confirm.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid gap-6 sm:grid-cols-3">
           {areas.map((area) => (
-            <Card key={area.city} className="p-8 border-2 hover:border-primary/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <MapPin className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">{area.city}</h3>
+            <div
+              key={area.city}
+              className="flex flex-col rounded-2xl border border-slate-100 bg-slate-50/60 p-5"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-slate-900">{area.city}</h3>
+                <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-orange-600">
+                  {area.badge}
+                </span>
               </div>
-              <p className="text-muted-foreground leading-relaxed">{area.description}</p>
-            </Card>
+              <p className="mt-2 text-sm text-slate-600">{area.desc}</p>
+            </div>
           ))}
         </div>
-
-        <Card className="p-8 bg-card/50 border-2">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="p-4 rounded-full bg-primary/10 shrink-0">
-              <Check className="h-8 w-8 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-2">Mobile Service Fee</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                A flat $35 mobile service fee applies to all on-location repairs. This covers my travel time and ensures
-                I arrive fully equipped to handle your automotive needs wherever you are.
-              </p>
-            </div>
-          </div>
-        </Card>
       </div>
     </section>
   )

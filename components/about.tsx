@@ -1,40 +1,42 @@
-"use client"
-
-import { useLanguage } from "@/lib/language-context"
-
+// components/about.tsx
 export function About() {
-  const { t } = useLanguage()
-
   return (
-    <section id="about" className="py-20 md:py-32 bg-card/30">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+    <section className="bg-slate-900 py-16 text-slate-50">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">{t("about.title")}</h2>
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">{t("about.description1")}</p>
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">{t("about.description2")}</p>
-            <div className="grid grid-cols-3 gap-6 pt-6">
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">3</div>
-                <div className="text-sm text-muted-foreground">{t("about.serviceAreas")}</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">$35</div>
-                <div className="text-sm text-muted-foreground">{t("about.mobileFee")}</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">{t("about.experience")}</div>
-                <div className="text-sm text-muted-foreground">Experience</div>
-              </div>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">
+              About DQ Automotive
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              Independent mobile mechanic focused on honest, transparent service.
+            </h2>
+            <p className="mt-4 text-sm text-slate-200 sm:text-base">
+              DQ Automotive was built for people who don&apos;t have time to sit at a
+              shop all day. We bring professional-grade tools and experience directly to
+              you, explain every recommendation, and never upsell work you don&apos;t
+              need.
+            </p>
+            <p className="mt-3 text-sm text-slate-300">
+              Whether it&apos;s a noisy brake, a battery that won&apos;t hold charge,
+              or a check-engine light that won&apos;t go away, you get clear diagnostics,
+              fair pricing, and work that&apos;s actually done right.
+            </p>
           </div>
 
-          <div className="relative h-[500px] rounded-lg overflow-hidden">
-            <img
-              src="/professional-auto-mechanic-working-on-car-engine.jpg"
-              alt="Our team at work"
-              className="w-full h-full object-cover"
-            />
+          <div className="space-y-4 rounded-3xl bg-slate-800/70 p-6">
+            <h3 className="text-sm font-semibold text-slate-100">
+              Why drivers choose mobile service
+            </h3>
+            <ul className="space-y-3 text-sm text-slate-200">
+              <li>• No towing or ride-sharing to a shop</li>
+              <li>• Evening and weekend availability</li>
+              <li>• See the work being done on your own driveway</li>
+              <li>• Clear explanation of parts, labor, and options</li>
+            </ul>
+            <p className="pt-2 text-xs text-slate-400">
+              Ask about bilingual support (English / Vietnamese) when you book.
+            </p>
           </div>
         </div>
       </div>

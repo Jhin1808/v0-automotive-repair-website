@@ -1,3 +1,4 @@
+// app/page.tsx
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { Services } from "@/components/services"
@@ -8,14 +9,30 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <>
       <Header />
-      <Hero />
-      <Services />
-      <Contact />
-      <ServiceAreas />
-      <About />
+      <main className="pt-16 bg-white text-gray-800">
+        <section id="home">
+          <Hero />
+        </section>
+
+        <section id="services" className="scroll-mt-24">
+          <Services />
+        </section>
+
+        <section id="service-areas" className="scroll-mt-24">
+          <ServiceAreas />
+        </section>
+
+        <section id="about" className="scroll-mt-24">
+          <About />
+        </section>
+
+        <section id="contact" className="scroll-mt-24">
+          <Contact />
+        </section>
+      </main>
       <Footer />
-    </main>
+    </>
   )
 }

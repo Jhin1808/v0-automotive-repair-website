@@ -1,88 +1,76 @@
-"use client"
-
-import { Card, CardContent } from "@/components/ui/card"
-import { Wrench, Gauge, Droplet, Disc, Zap, CheckCircle, Settings, Clock, Cog } from "lucide-react"
-import { useLanguage } from "@/lib/language-context"
-
+// components/services.tsx
 export function Services() {
-  const { t } = useLanguage()
-
   const services = [
     {
-      icon: Droplet,
-      titleKey: "services.oilChange.title",
-      descriptionKey: "services.oilChange.description",
+      title: "Oil Changes & Fluids",
+      desc: "Full–service oil changes with filter, fluids, and safety inspection at your location.",
+      tag: "Maintenance",
     },
     {
-      icon: Disc,
-      titleKey: "services.brakes.title",
-      descriptionKey: "services.brakes.description",
+      title: "Brake Service & Repair",
+      desc: "Pads, rotors, calipers, and brake fluid service to restore safe stopping power.",
+      tag: "Safety",
     },
     {
-      icon: Settings,
-      titleKey: "services.suspension.title",
-      descriptionKey: "services.suspension.description",
+      title: "Battery & Electrical",
+      desc: "Battery testing & replacement, alternators, starters, and electrical diagnostics.",
+      tag: "Diagnostics",
     },
     {
-      icon: Gauge,
-      titleKey: "services.tuneUp.title",
-      descriptionKey: "services.tuneUp.description",
+      title: "Suspension & Steering",
+      desc: "Struts, shocks, control arms, and steering components for a smoother, safer ride.",
+      tag: "Comfort",
     },
     {
-      icon: Zap,
-      titleKey: "services.electrical.title",
-      descriptionKey: "services.electrical.description",
+      title: "Check Engine Light",
+      desc: "Professional scan tools and step-by-step diagnostics for warning lights and codes.",
+      tag: "Diagnostics",
     },
     {
-      icon: Clock,
-      titleKey: "services.timing.title",
-      descriptionKey: "services.timing.description",
-    },
-    {
-      icon: CheckCircle,
-      titleKey: "services.inspection.title",
-      descriptionKey: "services.inspection.description",
-    },
-    {
-      icon: Cog,
-      titleKey: "services.diagnostics.title",
-      descriptionKey: "services.diagnostics.description",
-    },
-    {
-      icon: Wrench,
-      titleKey: "services.general.title",
-      descriptionKey: "services.general.description",
+      title: "Pre-Purchase Inspections",
+      desc: "On-site inspection before you buy a used car — avoid expensive surprises.",
+      tag: "Inspection",
     },
   ]
 
   return (
-    <section id="services" className="py-20 md:py-32">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("services.title")}</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t("services.subtitle")}</p>
+    <div className="bg-slate-50 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+            Services
+          </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Full-Service Mobile Auto Repair
+          </h2>
+          <p className="mt-3 text-sm text-slate-600 sm:text-base">
+            From routine maintenance to advanced diagnostics, we handle most jobs on-site
+            so you can skip the tow truck and waiting room.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const Icon = service.icon
-            return (
-              <Card
-                key={index}
-                className="border-2 border-border bg-card hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
-              >
-                <CardContent className="p-8">
-                  <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
-                    <Icon className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{t(service.titleKey)}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{t(service.descriptionKey)}</p>
-                </CardContent>
-              </Card>
-            )
-          })}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <article
+              key={service.title}
+              className="flex flex-col rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <div className="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600">
+                {service.tag}
+              </div>
+              <h3 className="mt-3 text-base font-semibold text-slate-900">
+                {service.title}
+              </h3>
+              <p className="mt-2 flex-1 text-sm text-slate-600">
+                {service.desc}
+              </p>
+              <span className="mt-3 text-xs font-semibold text-orange-500">
+                Mobile service • By appointment
+              </span>
+            </article>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   )
 }
