@@ -1,12 +1,23 @@
 import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
 import "../styles/globals.css"
 import { Providers } from "./providers"
 
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+})
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
+
 export const metadata: Metadata = {
   title: "DQ Automotive | Mobile Mechanic",
-  description: "Mobile auto repair & diagnostics serving Seattle, Burien, and Kent.",
+  description: "Mobile auto repair and diagnostics serving Seattle, Burien, and Kent.",
   icons: {
-    icon: "/favicon.png",          // or another file in /public
+    icon: "/favicon.png",
     shortcut: "/favicon.png",
     apple: "/favicon.png",
   },
@@ -14,12 +25,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>
