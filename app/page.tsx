@@ -1,6 +1,6 @@
-// app/page.tsx
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
+import { BookingSteps } from "@/components/booking-steps"
 import { Services } from "@/components/services"
 import { ServiceAreas } from "@/components/service-areas"
 import { About } from "@/components/about"
@@ -11,9 +11,13 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="pt-16 bg-white text-gray-800">
+      <main className="pt-16 bg-white text-slate-800">
         <section id="home">
           <Hero />
+        </section>
+
+        <section id="how-it-works" className="scroll-mt-24">
+          <BookingSteps />
         </section>
 
         <section id="services" className="scroll-mt-24">
@@ -36,4 +40,3 @@ export default function Home() {
     </>
   )
 }
-
