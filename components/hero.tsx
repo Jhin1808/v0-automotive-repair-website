@@ -1,21 +1,14 @@
 "use client"
 
-import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Phone, Calendar, MapPin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
+const ARI_BOOKING_URL =
+  "https://www.aribooking.utilitymobileapps.com/index.html?FBProject=ARI&shopID=lxZrYdjOImTXAMx0CtnT8XL8Dsw1"
+
 export function Hero() {
   const { t } = useLanguage()
-
-  const scrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    const contactSection = document.getElementById("contact")
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-  }
 
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
@@ -46,7 +39,7 @@ export function Hero() {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="text-base font-semibold" asChild>
-              <a href="#contact" onClick={scrollToContact}>
+              <a href={ARI_BOOKING_URL} target="_blank" rel="noopener noreferrer">
                 <Calendar className="mr-2 h-5 w-5" />
                 {t("hero.scheduleService")}
               </a>
