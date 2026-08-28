@@ -1,21 +1,14 @@
 "use client"
 
-import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Wrench, Languages } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
+const ARI_BOOKING_URL =
+  "https://www.aribooking.utilitymobileapps.com/index.html?FBProject=ARI&shopID=lxZrYdjOImTXAMx0CtnT8XL8Dsw1"
+
 export function Header() {
   const { language, setLanguage, t } = useLanguage()
-
-  const scrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    const contactSection = document.getElementById("contact")
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
-  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
@@ -50,7 +43,7 @@ export function Header() {
             </Button>
 
             <Button size="sm" className="font-semibold" asChild>
-              <a href="#contact" onClick={scrollToContact}>
+              <a href={ARI_BOOKING_URL} target="_blank" rel="noopener noreferrer">
                 {t("nav.bookAppointment")}
               </a>
             </Button>
