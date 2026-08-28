@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, CheckCircle2, Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react"
@@ -11,7 +12,7 @@ const ARI_BOOKING_URL =
 type ContactItemProps = {
   icon: typeof Phone
   label: string
-  children: React.ReactNode
+  children: ReactNode
 }
 
 function ContactItem({ icon: Icon, label, children }: ContactItemProps) {
