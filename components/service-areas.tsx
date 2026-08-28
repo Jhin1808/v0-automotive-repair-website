@@ -1,4 +1,4 @@
-import { MapPin, Check } from "lucide-react"
+import { Check, MapPin } from "lucide-react"
 import { Card } from "@/components/ui/card"
 
 export function ServiceAreas() {
@@ -18,41 +18,44 @@ export function ServiceAreas() {
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-background">
+    <section className="relative bg-[#09090a] py-20 md:py-32">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Service Areas</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <div className="mb-14 grid gap-6 md:grid-cols-2 md:items-end">
+          <div>
+            <div className="mb-4 h-1 w-14 bg-primary" aria-hidden="true" />
+            <h2 className="text-4xl font-black uppercase tracking-[-0.04em] text-white md:text-6xl">Service Areas</h2>
+          </div>
+          <p className="max-w-xl text-lg leading-relaxed text-zinc-400 md:justify-self-end">
             I provide mobile automotive repair services throughout the greater Seattle area
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {areas.map((area) => (
-            <Card key={area.city} className="p-8 border-2 hover:border-primary/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <MapPin className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold">{area.city}</h3>
+        <div className="mb-5 grid gap-4 md:grid-cols-3">
+          {areas.map((area, index) => (
+            <Card key={area.city} className="group relative overflow-hidden rounded-none border border-white/10 bg-[#121214] p-7 shadow-none transition-all hover:border-primary/60 md:p-8">
+              <span className="absolute right-5 top-4 font-mono text-xs text-zinc-700">0{index + 1}</span>
+              <div className="mb-6 flex h-12 w-12 items-center justify-center border border-primary/35 bg-primary/10 transition-colors group-hover:bg-primary">
+                <MapPin className="h-5 w-5 text-primary transition-colors group-hover:text-white" aria-hidden="true" />
               </div>
-              <p className="text-muted-foreground leading-relaxed">{area.description}</p>
+              <h3 className="mb-3 text-2xl font-black uppercase tracking-tight text-white">{area.city}</h3>
+              <p className="leading-relaxed text-zinc-400">{area.description}</p>
             </Card>
           ))}
         </div>
 
-        <Card className="p-8 bg-card/50 border-2">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="p-4 rounded-full bg-primary/10 shrink-0">
-              <Check className="h-8 w-8 text-primary" />
+        <Card className="rounded-none border border-primary/35 bg-[linear-gradient(90deg,rgba(220,38,38,0.16),rgba(18,18,20,1)_38%)] p-7 shadow-none md:p-9">
+          <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center bg-primary shadow-[0_0_28px_rgba(220,38,38,0.24)]">
+              <Check className="h-7 w-7 text-white" aria-hidden="true" />
             </div>
             <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-2">Mobile Service Fee</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <h3 className="mb-2 text-2xl font-black uppercase text-white">Mobile Service Fee</h3>
+              <p className="text-lg leading-relaxed text-zinc-300">
                 A flat $35 mobile service fee applies to all on-location repairs. This covers my travel time and ensures
                 I arrive fully equipped to handle your automotive needs wherever you are.
               </p>
             </div>
+            <div className="border-l border-primary/40 pl-6 text-4xl font-black text-primary md:text-5xl">$35</div>
           </div>
         </Card>
       </div>
