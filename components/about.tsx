@@ -42,8 +42,8 @@ export function About() {
             <div className="absolute -right-4 -top-4 h-24 w-24 border-r-2 border-t-2 border-primary" aria-hidden="true" />
             <div className="relative h-[430px] overflow-hidden border border-white/10 md:h-[560px]">
               <img
-                src="/professional-auto-mechanic-working-on-car-engine.jpg"
-                alt="DQ Automotive mechanic working on a car engine"
+                src="/dq-mobile-mechanic-service.png"
+                alt="Mobile mechanic servicing a car in a Seattle-area driveway"
                 className="h-full w-full object-cover grayscale-[20%] transition duration-700 hover:scale-[1.02] hover:grayscale-0"
               />
               <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(9,9,10,0.82)_0%,transparent_45%)]" />
